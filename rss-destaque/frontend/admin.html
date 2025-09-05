@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin - Definir Destaques</title>
+</head>
+<body>
+  <h2>Adicionar Destaque a um item</h2>
+  <form id="formDestaque">
+    <label>Link do item: <input type="text" id="link" required style="width: 400px;"></label><br><br>
+    <label>Duração do destaque (horas): <input type="number" id="duracao" min="1" value="24" required></label><br><br>
+    <button type="submit">Destacar</button>
+  </form>
+  <div id="resultado" style="margin-top: 20px;"></div>
+
+  <script>
+    const form = document.getElementById('formDestaque');
+    const resultado = document.getElementById('resultado');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      resultado.textContent = 'Processando...';
+
+      const link = document.getElementById('link').value.trim();
+      const duracaoHoras = parseInt(document.getElementById('duracao').value);
+
+      try {
+        const res = await fetch('http://localhost:3000/admin/destaque', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ link, duracaoHoras }),
+        });
+
+        const json = await res.json();
+
+        if (json.sucesso) {
+          resultado.textContent = `Destaque ativo até: ${new Date(json.expiryDate).toLocaleString()}`;
+        } else {
+          resultado.textContent = `Erro: ${json.error || 'Desconhecido'}`;
+        }
+      } catch (err) {
+        resultado.textContent = 'Erro ao conectar com servidor.';
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

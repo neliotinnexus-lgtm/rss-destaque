@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>RSS com Destaque</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 0 10px;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+    .destaque {
+      background-color: #fffae6;
+      border: 2px solid #ffc107;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .badge {
+      color: #856404;
+      background-color: #fff3cd;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 10px;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Feeds RSS filtrados com destaque</h1>
+  <ul id="lista"></ul>
+
+  <script>
+    function criarItem(item) {
+      const li = document.createElement('li');
+
+      if (item.destacado) {
+        li.classList.add('destaque');
+
+        const badge = document.createElement('span');
+        badge.classList.add('badge');
+        badge.textContent = 'Destaque';
+        li.appendChild(badge);
+      }
+
+      const a = document.createElement('a');
+      a.href = item.link;
+      a.target = '_blank';
+      a.textContent = item.title;
+
+      li.appendChild(a);
+      return li;
+    }
+
+    async function carregarFeeds() {
+      try {
+        const resposta = await fetch('http://localhost:3000/feed');
+        const dados = await resposta.json();
+
+        const lista = document.getElementById('lista');
+        lista.innerHTML = '';
+
+        dados.forEach(item => {
+          const li = criarItem(item);
+          lista.appendChild(li);
+        });
+      } catch (err) {
+        console.error('Erro ao carregar feeds', err);
+      }
+    }
+
+    carregarFeeds();
+    setInterval(carregarFeeds, 5 * 60 * 1000);
+  </script>
+</body>
+</html>
